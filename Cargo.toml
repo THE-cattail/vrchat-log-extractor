@@ -1,0 +1,20 @@
+[package]
+name = "vrchat-log-extractor"
+version = "1.0.0"
+edition = "2024"
+authors = ["猫尾黑夜"]
+description = "VRChat 日志提取器"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+crossterm = "0"
+food-log-rs = { git = "ssh://git@github.com/THE-cattail/food-log-rs.git" }
+tracing = "0"
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,0 +1,23 @@
+name: 持续集成 - Rust
+
+on:
+  pull_request:
+    paths:
+      - '**'
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    container:
+      image: thecattail/food-rs-ci
+    env:
+      RUST_BACKTRACE: 1
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo build
+      - run: cargo +nightly fmt --all -- --check
+      - run: cargo sort --check
+      - run: cargo +nightly udeps --workspace --all-targets
+      # - run: cargo outdated --workspace --depth 1 --exit-code 1
+      - run: cargo clippy --tests -- -D warnings -W clippy::pedantic -W clippy::nursery
+      - run: cargo test --workspace -- --show-output
