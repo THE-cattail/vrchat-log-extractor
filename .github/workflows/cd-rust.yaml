@@ -1,0 +1,38 @@
+name: 持续交付 - Rust
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - id: get_version
+        run: echo "VERSION=$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[0].version')" >> $GITHUB_ENV
+      - uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ env.VERSION }}
+          tag_name: v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          files: |
+            target/release/vrchat-log-extractor
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
