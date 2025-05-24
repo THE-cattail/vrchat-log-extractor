@@ -1,0 +1,31 @@
+name: 持续交付 - Rust
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64-x86-64
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: x86_64-pc-windows-gnu
+          override: true
+      - run: cargo build --release --target=x86_64-pc-windows-gnu
+      - run: echo "VERSION=$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[0].version')" >> $GITHUB_ENV
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v$VERSION
+          files: |
+            target/x86_64-pc-windows-gnu/vrchat-log-extractor.exe
